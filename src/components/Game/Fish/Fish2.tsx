@@ -82,13 +82,23 @@ export default function Fish2({ onFishChange }: FishProps) {
 
   const { selectedYear } = useAppSelector((state) => state.control);
   const { user } = useAppSelector((state) => state.user);
+  const { selectedOperator } = useAppSelector((state) => state.game);
+
   const { play, setBackgroundVolume, stop } = _useAudio();
 
   // Load questions based on selected year
   useEffect(() => {
     const selectedLevel = `YEAR_${selectedYear}` as keyof typeof Level;
-    setQuestions(generateQuestions(Level[selectedLevel]));
-  }, [selectedYear]);
+    if (selectedOperator && selectedOperator.link) {
+      setQuestions(
+        generateQuestions(Level[selectedLevel], selectedOperator.link as any)
+      );
+    } else {
+      setQuestions(generateQuestions(Level[selectedLevel]));
+    }
+
+    console.log(selectedOperator);
+  }, [selectedYear, selectedOperator]);
 
   // Trigger onFishChange when fish type or question index changes
   useEffect(() => {
