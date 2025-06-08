@@ -21,6 +21,7 @@ import PickAYear from '../views/PickAYear/PickAYear';
 import ReadyAssessment from '../views/ReadyAssessment/ReadyAssessment';
 import ProtectedAssessmentRoute from './ProtectedAssessmentRoute';
 import NonProtectedAssessmentRoute from './NonProtectedAssessmentRoute';
+import Dashboard from '../views/Dashboard/Dashboard';
 // import { useState } from 'react';
 
 export default function AppRoutes() {
@@ -60,6 +61,16 @@ export default function AppRoutes() {
             <Route path='level' element={<CurvedLineLevels />} />
           </Route>
         </Route>
+
+        {/* Standalone Protected Dashboard Route */}
+        <Route
+          path='/dashboard'
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Public Routes */}
         <Route
