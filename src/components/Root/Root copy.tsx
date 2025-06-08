@@ -133,6 +133,7 @@ import {
   clearError as clearAuthError,
   setUser,
 } from '../../features/auth/authSlice';
+import { getGlobalLeaderBoard } from '../../features/leaderBoard/leaderBoardSlice';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../../configs/firebase';
 import { _useAudio } from '../../hook/_useAudio';
@@ -157,6 +158,7 @@ const Root: React.FC = () => {
     error: userError,
   } = useAppSelector((state) => state.user);
 
+  const { selectedYear } = useAppSelector((state) => state.control);
   const location = useLocation();
 
   // Check the current route array
@@ -195,13 +197,22 @@ const Root: React.FC = () => {
           // Fetch user profile if not already loaded
           if (!userProfile && !userProfileData) {
             try {
-              await dispatch(getUserProfile());
+              await dispatch(getUserProfile()).unwrap();
             } catch (error) {
               console.error('Failed to fetch user profile:', error);
               // Clear any user-related errors after logging
               setTimeout(() => {
                 dispatch(clearUserError());
               }, 3000);
+            }
+          }
+
+          // Load global leaderboard if year is selected
+          if (selectedYear) {
+            try {
+              await dispatch(getGlobalLeaderBoard(selectedYear));
+            } catch (error) {
+              console.error('Failed to fetch leaderboard:', error);
             }
           }
         } else {
@@ -217,7 +228,14 @@ const Root: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, [dispatch, isAuthenticated, userProfile, userProfileData, role]);
+  }, [
+    dispatch,
+    isAuthenticated,
+    userProfile,
+    userProfileData,
+    role,
+    selectedYear,
+  ]);
 
   // Clear errors after some time
   useEffect(() => {
@@ -244,11 +262,8 @@ const Root: React.FC = () => {
   // Show loading while checking authentication
   if (authLoading || authStateLoading) {
     return (
-      <div className='flex items-center justify-center min-h-screen'>
-        <div className='text-center'>
-          <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2'></div>
-          <p className='text-black'>Loading...</p>
-        </div>
+      <div className={classes.loadingContainer}>
+        <div>Loading...</div>
       </div>
     );
   }
@@ -274,10 +289,13 @@ const Root: React.FC = () => {
           <div className={classes.banner}>{/* Banner content */}</div>
         )}
 
-        {role}
-
         {/* Main content */}
-        <main className='bg-white'>
+        <main className={classes.mainContent}>
+          {userLoading && (
+            <div className={classes.userLoadingOverlay}>
+              <div>Loading user data...</div>
+            </div>
+          )}
           <Outlet />
         </main>
 

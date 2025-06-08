@@ -67,7 +67,7 @@ const getLeaderboard = (
 
 const LeaderBoard: React.FC<LeaderBoardProps> = ({ type = 'both' }) => {
   const dispatch = useAppDispatch();
-  const { leaderboard } = useAppSelector((state) => state.leaderBoard);
+  const { globalLeaderboard } = useAppSelector((state) => state.leaderBoard);
 
   const tabs = ['Car', 'Fish'];
   const [activeIndex, setActiveIndex] = useState(0);
@@ -79,8 +79,8 @@ const LeaderBoard: React.FC<LeaderBoardProps> = ({ type = 'both' }) => {
 
   // Use useMemo to prevent unnecessary recalculations
   const filteredLeaderboard = useMemo(() => {
-    return getLeaderboard(leaderboard, currentType);
-  }, [leaderboard, currentType]);
+    return getLeaderboard(globalLeaderboard, currentType);
+  }, [globalLeaderboard, currentType]);
 
   // For debugging
   useEffect(() => {

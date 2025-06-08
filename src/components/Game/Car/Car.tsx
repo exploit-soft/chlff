@@ -22,11 +22,12 @@ import {
   getUserProfile,
   updateUserProfile,
 } from '../../../features/user/userSlice';
-import { getLeaderBoard } from '../../../features/leaderBoard/leaderBoardSlice';
+import { getGlobalLeaderBoard } from '../../../features/leaderBoard/leaderBoardSlice';
 import { _useAudio } from '../../../hook/_useAudio';
 import { Item } from '../../../data/showroom/characters';
 import { getUnlockedItems } from '../../../utils/unlockedItems';
 import { useNavigate } from 'react-router-dom';
+import { StudentProfile } from '../../../services/userService';
 
 const imagePath = '/assets/showroom/avatar';
 
@@ -134,6 +135,13 @@ export default function Car() {
 
   const { play, setBackgroundVolume, stop } = _useAudio();
 
+  // Type guard to ensure user is a student
+  const isStudentUser = (user: any): user is StudentProfile => {
+    return user && user.role === 'student';
+  };
+
+  const studentUser = isStudentUser(user) ? user : null;
+
   // Function to get items by character name
   function getCharacterItems(characterName: string): Item[] {
     const character = characters.find(
@@ -143,13 +151,13 @@ export default function Car() {
   }
 
   // Get character-specific items
-  const characterItems = getCharacterItems(user?.character ?? 'police');
+  const characterItems = getCharacterItems(studentUser?.character ?? 'police');
 
   useEffect(() => {
-    console.log(user?.character);
+    console.log(studentUser?.character);
 
     console.log('HEREE: ', characterItems);
-  }, [user]);
+  }, [studentUser]);
 
   useEffect(() => {
     // console.log('HIIIIIII: ', characters);
@@ -310,27 +318,28 @@ export default function Car() {
 
   const confirmItemSelection = async () => {
     if (selectedItem) {
-      if (user) {
+      if (studentUser) {
         await dispatch(
           unlockItem({
-            uid: user?.uid ?? '',
-            characterName: user?.character ?? 'Police',
+            uid: studentUser?.uid ?? '',
+            characterName: studentUser?.character ?? 'Police',
             itemId: selectedItem.id,
           })
         );
 
         await dispatch(
           updateUserProfile({
-            uid: user.uid,
+            uid: studentUser.uid,
             updatedData: {
               carGameInfo: {
-                level: (user?.carGameInfo.level || 0) + level,
+                level: (studentUser?.carGameInfo.level || 0) + level,
                 totalTimePlayed:
-                  (user?.carGameInfo?.totalTimePlayed || 0) + elapsedTime,
+                  (studentUser?.carGameInfo?.totalTimePlayed || 0) +
+                  elapsedTime,
                 totalFailedMissions:
-                  user?.carGameInfo?.totalFailedMissions || 0,
+                  studentUser?.carGameInfo?.totalFailedMissions || 0,
                 totalSuccessfulMissions:
-                  (user?.carGameInfo?.totalSuccessfulMissions || 0) + 1,
+                  (studentUser?.carGameInfo?.totalSuccessfulMissions || 0) + 1,
               },
             },
           })
@@ -339,7 +348,7 @@ export default function Car() {
           .then(() => {
             console.log('Profile updated successfully');
             dispatch(getUserProfile());
-            dispatch(getLeaderBoard(selectedYear));
+            dispatch(getGlobalLeaderBoard(selectedYear));
 
             setShowUnlockItemModalNextStep(true);
           })
@@ -366,7 +375,7 @@ export default function Car() {
     setCount(0);
     setLevel((prevLevel) => prevLevel + 1);
     dispatch(getUserProfile());
-    dispatch(getLeaderBoard(selectedYear));
+    dispatch(getGlobalLeaderBoard(selectedYear));
 
     setShowUnlockItemModalNextStep(false);
   };
@@ -519,13 +528,14 @@ export default function Car() {
               uid: user?.uid,
               updatedData: {
                 carGameInfo: {
-                  level: (user?.carGameInfo.level || 0) + level,
+                  level: (studentUser?.carGameInfo.level || 0) + level,
                   totalTimePlayed:
-                    (user?.carGameInfo?.totalTimePlayed || 0) + elapsedTime,
+                    (studentUser?.carGameInfo?.totalTimePlayed || 0) +
+                    elapsedTime,
                   totalFailedMissions:
-                    (user?.carGameInfo?.totalFailedMissions || 0) + 1,
+                    (studentUser?.carGameInfo?.totalFailedMissions || 0) + 1,
                   totalSuccessfulMissions:
-                    user?.carGameInfo?.totalSuccessfulMissions || 0,
+                    studentUser?.carGameInfo?.totalSuccessfulMissions || 0,
                 },
               },
             })
@@ -534,7 +544,7 @@ export default function Car() {
             .then(() => {
               console.log('Profile updated successfully');
               dispatch(getUserProfile());
-              dispatch(getLeaderBoard(selectedYear));
+              dispatch(getGlobalLeaderBoard(selectedYear));
             })
             .catch((error) =>
               console.error('Failed to update profile:', error)
@@ -596,10 +606,13 @@ export default function Car() {
   };
 
   const getMissionImage = (type: keyof MissionImagePaths) => {
-    if (user && user?.character?.toLowerCase() in missionModalImages) {
+    if (
+      studentUser &&
+      studentUser?.character?.toLowerCase() in missionModalImages
+    ) {
       const characterImages =
         missionModalImages[
-          user?.character.toLowerCase() as keyof MissionModalImages
+          studentUser?.character.toLowerCase() as keyof MissionModalImages
         ];
       return characterImages[type] || 'assets/mission/default_mission.png';
     } else {
@@ -608,7 +621,7 @@ export default function Car() {
   };
 
   useEffect(() => {
-    if (user && user.character) {
+    if (studentUser && studentUser.character) {
       const carMapping: { [key: string]: string } = {
         police: '/assets/car/vehicles/police.png',
         engineer: '/assets/car/vehicles/engineer.png',
@@ -617,7 +630,7 @@ export default function Car() {
         firefighter: '/assets/car/vehicles/firefighter.png',
       };
       setCarImage(
-        carMapping[user?.character?.toLowerCase()] ||
+        carMapping[studentUser?.character?.toLowerCase()] ||
           '/assets/car/vehicles/police.png'
       );
     }
@@ -649,16 +662,16 @@ export default function Car() {
   }, [isGameActive]);
 
   const unlockedItems = useMemo(() => {
-    if (!user || !user.items || !user.gender) {
+    if (!studentUser || !studentUser.items || !studentUser.gender) {
       return [];
     }
     return getUnlockedItems({
       items: characterItems,
-      itemsPayload: user.items,
-      characterName: user.character,
+      itemsPayload: studentUser.items,
+      characterName: studentUser.character,
       mode: 'remove',
     });
-  }, [user]);
+  }, [studentUser]);
 
   return (
     <div className={classes.gameWrapper}>
@@ -797,7 +810,7 @@ export default function Car() {
             wrongAnswers={wrongAnswers}
             totalStage={totalStages}
             stage={stage}
-            level={user?.carGameInfo.level ?? level}
+            level={studentUser?.carGameInfo.level ?? level}
             progress={progressPercentage}
             gameType='car'
             gameTitle={`${selectedOperator?.name} Challenge`}
@@ -829,7 +842,9 @@ export default function Car() {
             <div className={classes.modal}>
               <div className={classes['modal-content']}>
                 <h2>Select an Item to Unlock</h2>
-                <p>Choose one item from the list below: {user?.character}</p>
+                <p>
+                  Choose one item from the list below: {studentUser?.character}
+                </p>
                 <div className={classes.itemGrid}>
                   {unlockedItems.map((item) => (
                     <div

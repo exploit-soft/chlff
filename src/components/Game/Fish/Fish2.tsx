@@ -14,7 +14,8 @@ import {
   getUserProfile,
   updateUserProfile,
 } from '../../../features/user/userSlice';
-import { getLeaderBoard } from '../../../features/leaderBoard/leaderBoardSlice';
+import { getGlobalLeaderBoard } from '../../../features/leaderBoard/leaderBoardSlice';
+import { StudentProfile } from '../../../services/userService';
 
 interface BoxPosition {
   x: number;
@@ -85,6 +86,13 @@ export default function Fish2({ onFishChange }: FishProps) {
   const { selectedOperator } = useAppSelector((state) => state.game);
 
   const { play, setBackgroundVolume, stop } = _useAudio();
+
+  // Type guard to ensure user is a student
+  const isStudentUser = (user: any): user is StudentProfile => {
+    return user && user.role === 'student';
+  };
+
+  const studentUser = isStudentUser(user) ? user : null;
 
   // Load questions based on selected year
   useEffect(() => {
@@ -229,18 +237,19 @@ export default function Fish2({ onFishChange }: FishProps) {
     stop('underWater');
     setShowLevelCompleteModal(true);
 
-    if (user) {
+    if (studentUser) {
       await dispatch(
         updateUserProfile({
-          uid: user?.uid,
+          uid: studentUser?.uid,
           updatedData: {
             fishGameInfo: {
-              level: (user?.fishGameInfo.level || 0) + currentLevel,
-              totalTimePlayed: (user?.fishGameInfo?.totalTimePlayed || 0) + 234,
+              level: (studentUser?.fishGameInfo.level || 0) + currentLevel,
+              totalTimePlayed:
+                (studentUser?.fishGameInfo?.totalTimePlayed || 0) + 234,
               totalFailedMissions:
-                (user?.fishGameInfo?.totalFailedMissions || 0) + 1,
+                (studentUser?.fishGameInfo?.totalFailedMissions || 0) + 1,
               totalSuccessfulMissions:
-                user?.fishGameInfo?.totalSuccessfulMissions || 0,
+                studentUser?.fishGameInfo?.totalSuccessfulMissions || 0,
             },
           },
         })
@@ -249,7 +258,7 @@ export default function Fish2({ onFishChange }: FishProps) {
         .then(() => {
           console.log('Profile updated successfully');
           dispatch(getUserProfile());
-          dispatch(getLeaderBoard(selectedYear));
+          dispatch(getGlobalLeaderBoard(selectedYear));
         })
         .catch((error) => console.error('Failed to update profile:', error));
     }
@@ -364,7 +373,7 @@ export default function Fish2({ onFishChange }: FishProps) {
             alt='Header'
           />
           <h1 className={classes.containerTitle}>
-            Level {user?.fishGameInfo.level}
+            Level {studentUser?.fishGameInfo.level}
           </h1>
           <h1 className={classes.containerTitle}>
             <span className={classes.timerName}>Time Left: </span>
