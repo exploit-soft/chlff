@@ -7,6 +7,7 @@ import puzzleReducer from '../features/puzzleSlice';
 import userReducer from '../features/user/userSlice';
 import LeaderBoardReducer from '../features/leaderBoard/leaderBoardSlice';
 import CharactersReducer from '../features/characters/charactersSlice';
+import dashboardReducer from '../features/dashboard/dashboardSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     puzzle: puzzleReducer,
     leaderBoard: LeaderBoardReducer,
     characters: CharactersReducer,
+    dashboard: dashboardReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -163,7 +163,12 @@ import {
 } from 'react-router-dom';
 import { ProtectedRoute, PublicRoute } from './AuthRoutes';
 import { useAppSelector } from '../app/hooks';
+
+// Root
 import Root from '../components/Root/Root';
+import StudentRoot from '../components/Root/StudentRoot';
+
+//  Screens
 import Login from '../views/Auth/Login';
 import Register from '../views/Auth/Register';
 import Welcome from '../views/Auth/Welcome';
@@ -213,6 +218,7 @@ const RoleBasedDashboard = () => {
 // Main App Router Component
 export default function AppRoutes() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { userProfile } = useAppSelector((state) => state.auth);
 
   return (
     <Router>
@@ -222,7 +228,8 @@ export default function AppRoutes() {
           path='/'
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Root />
+              {userProfile?.role === 'student' ? <StudentRoot /> : <Root />}
+              {/* <Root /> */}
             </ProtectedRoute>
           }
         >

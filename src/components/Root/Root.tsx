@@ -109,18 +109,7 @@
 // export default Root;
 
 import classes from './Root.module.css';
-import { Outlet, useLocation } from 'react-router-dom';
-import CongratulationModal from '../Modals/CongratulationModal/CongratulationModal';
-import Header from '../Layout/Header/Header';
-import SelectAssessmentYear from '../Modals/AssessmentYearModal/AssessmentYearModal';
-import GameModeModal from '../Modals/GameModeModal/GameModeModal';
-import SelectGame from '../Modals/SelectGame/SelectGame';
-import SelectGenderModal from '../Modals/SelectGenderModal/SelectGenderModal';
-import Footer from '../Layout/Footer/Footer';
-import LeaderBoardInfoModal from '../Modals/LeaderBoardInfoModal/LeaderBoardInfoModal';
-import SoundSettingModal from '../Modals/SoundSettingModal/SoundSettingModal';
-import Overlay from '../Shared/Overlay/Overlay';
-import LogoutConfirmModal from '../Modals/LogoutConfirmModal/LogoutConfirmModal';
+import { Outlet } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import {
@@ -143,7 +132,6 @@ const Root: React.FC = () => {
 
   // Redux state
   const {
-    user: authUser,
     userProfile,
     role,
     isAuthenticated,
@@ -151,21 +139,9 @@ const Root: React.FC = () => {
     error: authError,
   } = useAppSelector((state) => state.auth);
 
-  const {
-    user: userProfileData,
-    loading: userLoading,
-    error: userError,
-  } = useAppSelector((state) => state.user);
-
-  const location = useLocation();
-
-  // Check the current route array
-  const shouldShowBanner = [
-    '/assessment',
-    '/action-center',
-    '/fishing',
-    '/car-race',
-  ].includes(location.pathname);
+  const { user: userProfileData, error: userError } = useAppSelector(
+    (state) => state.user
+  );
 
   // Initialize auth from localStorage on app start
   useEffect(() => {
@@ -266,34 +242,11 @@ const Root: React.FC = () => {
   return (
     <>
       <div className={classes.root}>
-        {/* Header - only show if authenticated */}
-        {isAuthenticated && <Header />}
-
-        {/* Banner for specific routes */}
-        {shouldShowBanner && (
-          <div className={classes.banner}>{/* Banner content */}</div>
-        )}
-
-        {role}
-
         {/* Main content */}
         <main className='bg-white'>
           <Outlet />
         </main>
-
-        {/* Footer - only show if authenticated */}
-        {isAuthenticated && <Footer />}
       </div>
-
-      {/* Modals */}
-      <CongratulationModal />
-      <SelectAssessmentYear />
-      <GameModeModal />
-      <SelectGame />
-      <SelectGenderModal />
-      <LeaderBoardInfoModal />
-      <SoundSettingModal />
-      <LogoutConfirmModal />
 
       {/* Global Overlay */}
       {/* <Overlay /> */}
