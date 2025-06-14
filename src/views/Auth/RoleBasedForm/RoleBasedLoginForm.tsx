@@ -9,7 +9,7 @@ import { getUserProfile } from '../../../features/user/userSlice';
 
 // Define TypeScript type for form values
 interface LoginFormValues {
-  identifier: string;
+  email: string;
   password: string;
 }
 
@@ -24,12 +24,13 @@ const RoleBasedLoginForm: React.FC = () => {
     formState: { errors },
   } = useForm<LoginFormValues>({
     defaultValues: {
-      identifier: '',
+      email: '',
       password: '',
     },
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    console.log('Form submitted with data:', data);
     setLoading(true);
     try {
       const res = await dispatch(loginUser(data));
@@ -55,7 +56,7 @@ const RoleBasedLoginForm: React.FC = () => {
           <div className={classes['form-input']}>
             <input
               type='email'
-              {...register('identifier', {
+              {...register('email', {
                 required: 'Email is required',
                 pattern: {
                   value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
@@ -63,7 +64,7 @@ const RoleBasedLoginForm: React.FC = () => {
                 },
               })}
               placeholder='Enter Email'
-              className={errors.identifier ? classes.error : ''}
+              className={errors.email ? classes.error : ''}
             />
           </div>
 
@@ -97,8 +98,8 @@ const RoleBasedLoginForm: React.FC = () => {
             </CustomButton>
           </div>
         </form>
-        {errors.identifier && (
-          <p className={classes.errorMsg}>- {errors.identifier.message}</p>
+        {errors.email && (
+          <p className={classes.errorMsg}>- {errors.email.message}</p>
         )}
         {errors.password && (
           <p className={classes.errorMsg}>- {errors.password.message}</p>

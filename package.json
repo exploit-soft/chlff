@@ -22,6 +22,7 @@
     "dayjs": "^1.11.11",
     "firebase": "^10.12.5",
     "framer-motion": "^11.2.10",
+    "lucide-react": "^0.514.0",
     "postcss": "^8.4.40",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

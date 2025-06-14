@@ -15,7 +15,7 @@ const NonProtectedAssessmentRoute = () => {
 
   if (isLoading) {
     // Show a loading spinner or placeholder while checking user data
-    return <div>Loading...</div>;
+    return <div>Loadingggg...</div>;
   }
 
   // If the user is not authenticated, redirect to the login page
@@ -23,10 +23,10 @@ const NonProtectedAssessmentRoute = () => {
     return <Navigate to='/login' replace />;
   }
 
-  // If the user has NOT completed the assessment, redirect to the assessment
-  if (!user.assessmentPassed) {
-    return <Navigate to='/' replace />;
-  }
+  // // If the user has NOT completed the assessment, redirect to the assessment
+  // if (!user.role != "" !user.assessmentPassed) {
+  //   return <Navigate to='/' replace />;
+  // }
 
   // Otherwise, allow access to the route
   return <Outlet />;

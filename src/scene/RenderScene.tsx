@@ -9,7 +9,7 @@ const RenderScene = () => {
     console.log('game mode: ', gameMode);
   }, []);
 
-  return <Suspense fallback={<div>Loading...</div>}></Suspense>;
+  return <Suspense fallback={<div>Loadinggg...</div>}></Suspense>;
 };
 
 export default RenderScene;
